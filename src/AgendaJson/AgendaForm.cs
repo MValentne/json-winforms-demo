@@ -57,6 +57,28 @@ public partial class AgendaForm : Form
         MostrarEstado($"Guardado en {Path.GetFullPath(ArchivoJson)} ({_contactos.Count} contactos).");
     }
 
+    private void btnCargar_Click(object sender, EventArgs e)
+    {
+        if (!File.Exists(ArchivoJson))
+        {
+            MostrarEstado($"No hay ningún {ArchivoJson} en esta carpeta. Guardá primero.", esError: true);
+            return;
+        }
+
+        // Deserializar: el texto vuelve a ser una lista de objetos.
+        string json = File.ReadAllText(ArchivoJson);
+        List<Contacto>? cargados = JsonSerializer.Deserialize<List<Contacto>>(json, OpcionesJson);
+
+        // Se reemplaza lo que había en la grilla: el archivo manda.
+        _contactos.Clear();
+        foreach (Contacto contacto in cargados ?? [])
+        {
+            _contactos.Add(contacto);
+        }
+
+        MostrarEstado($"Cargados {_contactos.Count} contactos desde {Path.GetFullPath(ArchivoJson)}.");
+    }
+
     private void MostrarEstado(string mensaje, bool esError = false)
     {
         lblEstado.Text = mensaje;

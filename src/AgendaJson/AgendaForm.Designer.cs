@@ -153,6 +153,7 @@ partial class AgendaForm
         btnCargar.TabIndex = 5;
         btnCargar.Text = "Cargar JSON";
         btnCargar.UseVisualStyleBackColor = true;
+        btnCargar.Click += btnCargar_Click;
 
         // AgendaForm
         AcceptButton = btnAgregar;
