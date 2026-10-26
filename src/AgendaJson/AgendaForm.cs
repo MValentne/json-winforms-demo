@@ -50,11 +50,18 @@ public partial class AgendaForm : Form
 
     private void btnGuardar_Click(object sender, EventArgs e)
     {
-        // Serializar: la lista de objetos se convierte en texto.
-        string json = JsonSerializer.Serialize(_contactos.ToList(), OpcionesJson);
-        File.WriteAllText(ArchivoJson, json);
+        try
+        {
+            // Serializar: la lista de objetos se convierte en texto.
+            string json = JsonSerializer.Serialize(_contactos.ToList(), OpcionesJson);
+            File.WriteAllText(ArchivoJson, json);
 
-        MostrarEstado($"Guardado en {Path.GetFullPath(ArchivoJson)} ({_contactos.Count} contactos).");
+            MostrarEstado($"Guardado en {Path.GetFullPath(ArchivoJson)} ({_contactos.Count} contactos).");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            MostrarEstado($"No se pudo escribir el archivo: {ex.Message}", esError: true);
+        }
     }
 
     private void btnCargar_Click(object sender, EventArgs e)
@@ -65,18 +72,31 @@ public partial class AgendaForm : Form
             return;
         }
 
-        // Deserializar: el texto vuelve a ser una lista de objetos.
-        string json = File.ReadAllText(ArchivoJson);
-        List<Contacto>? cargados = JsonSerializer.Deserialize<List<Contacto>>(json, OpcionesJson);
-
-        // Se reemplaza lo que había en la grilla: el archivo manda.
-        _contactos.Clear();
-        foreach (Contacto contacto in cargados ?? [])
+        try
         {
-            _contactos.Add(contacto);
-        }
+            // Deserializar: el texto vuelve a ser una lista de objetos.
+            string json = File.ReadAllText(ArchivoJson);
+            List<Contacto>? cargados = JsonSerializer.Deserialize<List<Contacto>>(json, OpcionesJson);
 
-        MostrarEstado($"Cargados {_contactos.Count} contactos desde {Path.GetFullPath(ArchivoJson)}.");
+            // Se reemplaza lo que había en la grilla: el archivo manda.
+            _contactos.Clear();
+            foreach (Contacto contacto in cargados ?? [])
+            {
+                _contactos.Add(contacto);
+            }
+
+            MostrarEstado($"Cargados {_contactos.Count} contactos desde {Path.GetFullPath(ArchivoJson)}.");
+        }
+        catch (JsonException ex)
+        {
+            // JsonException trae la línea donde se rompió: sirve para corregir el archivo.
+            long linea = (ex.LineNumber ?? 0) + 1;
+            MostrarEstado($"El archivo no es un JSON válido (línea {linea}). {ex.Message}", esError: true);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            MostrarEstado($"No se pudo leer el archivo: {ex.Message}", esError: true);
+        }
     }
 
     private void MostrarEstado(string mensaje, bool esError = false)
