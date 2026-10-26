@@ -144,6 +144,7 @@ partial class AgendaForm
         btnGuardar.TabIndex = 4;
         btnGuardar.Text = "Guardar JSON";
         btnGuardar.UseVisualStyleBackColor = true;
+        btnGuardar.Click += btnGuardar_Click;
 
         // btnCargar
         btnCargar.Location = new Point(612, 462);

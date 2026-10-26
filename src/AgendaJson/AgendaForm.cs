@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace AgendaJson;
 
@@ -7,6 +9,14 @@ public partial class AgendaForm : Form
     // BindingList avisa a la grilla cada vez que la lista cambia:
     // no hay que refrescar el DataGridView a mano.
     private readonly BindingList<Contacto> _contactos = new();
+
+    private static readonly JsonSerializerOptions OpcionesJson = new()
+    {
+        // Un archivo con saltos de línea e indentación se puede leer y editar a mano.
+        WriteIndented = true,
+        // Sin esto, los acentos y la ñ se guardan como \u00F1 y nadie entiende nada.
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
 
     public AgendaForm()
     {
@@ -36,6 +46,15 @@ public partial class AgendaForm : Form
         txtTelefono.Clear();
         txtNombre.Focus();
         MostrarEstado($"{_contactos.Count} contacto(s) en la agenda.");
+    }
+
+    private void btnGuardar_Click(object sender, EventArgs e)
+    {
+        // Serializar: la lista de objetos se convierte en texto.
+        string json = JsonSerializer.Serialize(_contactos.ToList(), OpcionesJson);
+        File.WriteAllText(ArchivoJson, json);
+
+        MostrarEstado($"Guardado en {Path.GetFullPath(ArchivoJson)} ({_contactos.Count} contactos).");
     }
 
     private void MostrarEstado(string mensaje, bool esError = false)
