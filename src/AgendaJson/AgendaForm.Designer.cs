@@ -95,7 +95,7 @@ partial class AgendaForm
         // 
         txtNombre.Location = new Point(100, 344);
         txtNombre.Name = "txtNombre";
-        txtNombre.PlaceholderText = "Ana Gómez";
+        txtNombre.PlaceholderText = "Ana Gomez";
         txtNombre.Size = new Size(240, 25);
         txtNombre.TabIndex = 1;
         // 
@@ -112,7 +112,7 @@ partial class AgendaForm
         // 
         txtTelefono.Location = new Point(440, 344);
         txtTelefono.Name = "txtTelefono";
-        txtTelefono.PlaceholderText = "221 555-0134";
+        txtTelefono.PlaceholderText = "3758678945";
         txtTelefono.Size = new Size(186, 25);
         txtTelefono.TabIndex = 2;
         // 

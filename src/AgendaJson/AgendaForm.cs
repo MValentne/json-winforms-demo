@@ -34,6 +34,12 @@ public partial class AgendaForm : Form
         {
             string nombre = txtNombre.Text.Trim();
             string telefono = txtTelefono.Text.Trim();
+            if (!telefono.All(char.IsDigit))
+            {
+                MostrarEstado("El teléfono solo puede contener números.", esError: true);
+                txtTelefono.Focus();
+                return;
+            }
 
             if (nombre.Length == 0 || telefono.Length == 0)
             {
