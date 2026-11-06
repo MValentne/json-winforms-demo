@@ -104,4 +104,29 @@ public partial class AgendaForm : Form
         lblEstado.Text = mensaje;
         lblEstado.ForeColor = esError ? Color.Firebrick : Color.FromArgb(96, 96, 96);
     }
+
+    private void btn_BorrarElemento_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (gridContactos.SelectedRows.Count == 0)
+            {
+                MostrarEstado("No hay ningún contacto seleccionado para borrar.", esError: true);
+                return;
+            }
+            DataGridViewSelectedRowCollection filasSeleccionadas = gridContactos.SelectedRows;
+            foreach (DataGridViewRow fila in filasSeleccionadas)
+            {
+                _contactos.RemoveAt(fila.Index);
+            }
+            string json = JsonSerializer.Serialize(_contactos.ToList(), OpcionesJson);
+            File.WriteAllText(ArchivoJson, json);
+            MostrarEstado($"{_contactos.Count} contacto(s) en la agenda.");
+
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            MostrarEstado($"No se pudo escribir el archivo: {ex.Message}", esError: true);
+        }
+    }
 }
