@@ -30,28 +30,41 @@ public partial class AgendaForm : Form
 
     private void btnAgregar_Click(object sender, EventArgs e)
     {
-        string nombre = txtNombre.Text.Trim();
-        string telefono = txtTelefono.Text.Trim();
-
-        if (nombre.Length == 0)
+        try
         {
-            MostrarEstado("Escribí un nombre antes de agregar.", esError: true);
+            string nombre = txtNombre.Text.Trim();
+            string telefono = txtTelefono.Text.Trim();
+
+            if (nombre.Length == 0 || telefono.Length == 0)
+            {
+                MostrarEstado("Escribí un nombre y un teléfono antes de agregar.", esError: true);
+                txtNombre.Focus();
+                return;
+            }
+
+            _contactos.Add(new Contacto { Nombre = nombre, Telefono = telefono });
+
+            txtNombre.Clear();
+            txtTelefono.Clear();
             txtNombre.Focus();
-            return;
+            MostrarEstado($"{_contactos.Count} contacto(s) en la agenda.");
         }
-
-        _contactos.Add(new Contacto { Nombre = nombre, Telefono = telefono });
-
-        txtNombre.Clear();
-        txtTelefono.Clear();
-        txtNombre.Focus();
-        MostrarEstado($"{_contactos.Count} contacto(s) en la agenda.");
+        catch (Exception ex)
+        {
+            MostrarEstado($"Error al agregar contacto: {ex.Message}", esError: true);
+        }
     }
+
 
     private void btnGuardar_Click(object sender, EventArgs e)
     {
         try
         {
+            if (_contactos.Count == 0)
+            {
+                MostrarEstado("No hay contactos para guardar.", esError: true);
+                return;
+            }
             // Serializar: la lista de objetos se convierte en texto.
             string json = JsonSerializer.Serialize(_contactos.ToList(), OpcionesJson);
             File.WriteAllText(ArchivoJson, json);
@@ -72,13 +85,20 @@ public partial class AgendaForm : Form
             return;
         }
 
+
         try
         {
-            // Deserializar: el texto vuelve a ser una lista de objetos.
+            
             string json = File.ReadAllText(ArchivoJson);
+            if (json == "[]")
+            {
+                MostrarEstado($"El archivo {ArchivoJson} está vacío. Guardá primero.", esError: true);
+                return;
+            }
             List<Contacto>? cargados = JsonSerializer.Deserialize<List<Contacto>>(json, OpcionesJson);
+            
 
-            // Se reemplaza lo que había en la grilla: el archivo manda.
+
             _contactos.Clear();
             foreach (Contacto contacto in cargados ?? [])
             {
