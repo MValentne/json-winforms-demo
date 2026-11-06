@@ -99,7 +99,6 @@ public partial class AgendaForm : Form
                 return;
             }
 
-
             _contactos.Clear();
             foreach (Contacto contacto in cargados ?? [])
             {
