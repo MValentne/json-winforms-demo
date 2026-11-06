@@ -90,13 +90,14 @@ public partial class AgendaForm : Form
         {
             
             string json = File.ReadAllText(ArchivoJson);
-            if (json == "[]")
+           
+            List<Contacto>? cargados = JsonSerializer.Deserialize<List<Contacto>>(json, OpcionesJson);
+
+            if (cargados == null || !cargados.Any())
             {
                 MostrarEstado($"El archivo {ArchivoJson} está vacío. Guardá primero.", esError: true);
                 return;
             }
-            List<Contacto>? cargados = JsonSerializer.Deserialize<List<Contacto>>(json, OpcionesJson);
-            
 
 
             _contactos.Clear();
